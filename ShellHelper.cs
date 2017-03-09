@@ -1,28 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace AutoTesterLib
+namespace InsertEntryPoint
 {
-   public class ShellHelper
+    class shellHelper
     {
-       public static Process GetShellProcess()
-       {
-           Process process = new Process();
-           //设定程序名
-           process.StartInfo.FileName = "cmd.exe";
-           //关闭Shell的使用
-           process.StartInfo.UseShellExecute = false;
-           //重新定向标准输入，输入，错误输出
-           process.StartInfo.RedirectStandardInput = true;
-           process.StartInfo.RedirectStandardOutput = true;
-           process.StartInfo.RedirectStandardError = true;
-           //设置cmd窗口不显示
-           process.StartInfo.CreateNoWindow = true;
+        public static StreamWriter SW_log { get; set; }
+        public static void executeShellExeCmd(string exePath,string args)
+        {
+            try
+            {
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                p.StartInfo.FileName = exePath;
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.Arguments = args;
+                p.StartInfo.RedirectStandardInput = true;    //重定向标准输入
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.RedirectStandardError = true;    //重定向错误输出
+                //开始
+                p.Start();
+                p.WaitForExit();
+                p.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                txtWriteHelper.AppendLog(SW_log, ex.Message);
+                throw ex;
+            }
+        }
 
-           return process;
-       }
+        public static void executeCmd(string args)
+        {
+            try
+            {
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                p.StartInfo.FileName = "cmd.exe";
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardInput = true;    //重定向标准输入
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.RedirectStandardError = true;    //重定向错误输出
+                //开始
+                p.Start();
+                p.StandardInput.WriteLine(args);
+                p.StandardInput.WriteLine("exit");
+                p.WaitForExit();
+                p.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                txtWriteHelper.AppendLog(SW_log, ex.Message);
+                throw ex;
+            }
+        }
     }
 }
